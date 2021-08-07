@@ -97,11 +97,16 @@ export default class Model {
         return {result, errors}
     }
 
-    async get({}:any) {
+    async get(params:any) {
 
         let db = new Database()
 
         let sql = `SELECT * FROM \`${this.getName()}\``
+
+        if('where' in params)
+        {
+            //TODO: continuar
+        }
 
         let result = await db.query(sql)
 
@@ -114,6 +119,8 @@ export default class Model {
 
         let result:any = []
 
+        let where :any= {}
+
         if(!primaryKey.includes(pk))
         {
             if(primaryKey.length!=0)
@@ -121,12 +128,10 @@ export default class Model {
             else
                 return false
         }
-        
-        let sql = `SELECT * FROM \`${this.getName()}\` WHERE \`${pk}\` = :id`
 
-        let db = new Database()
+        where[pk] = id
 
-        result = await db.query(sql,{id})
+        result = await this.get({where})
 
         return result
     }
