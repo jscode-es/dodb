@@ -1,0 +1,67 @@
+{
+  "name": "dodb",
+  "version": "1.0.0",
+  "description": "Dynamic Object DataBase",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "start": "npm run dev",
+    "dev": "cross-env NODE_ENV=development nodemon",
+    "build": "tsc",
+    "test": "jest --config jestconfig.json"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JSCode-es/dodb.git"
+  },
+  "keywords": [
+    "Dynamic",
+    "Database",
+    "Object"
+  ],
+  "author": "(JSCode) Sergio Gonzalez Garrido",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/JSCode-es/dodb/issues"
+  },
+  "eslintConfig": {
+    "env": {
+      "jest": true
+    }
+  },
+  "nodemonConfig": {
+    "watch": [
+      "src/**/*"
+    ],
+    "ext": "ts",
+    "exec": "npm run build && node ./dist/index.js",
+    "verbose": false,
+    "legacyWatch": true
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "coveragePathIgnorePatterns": [
+      "/node_modules/"
+    ]
+  },
+  "homepage": "https://github.com/JSCode-es/dodb#readme",
+  "devDependencies": {
+    "@types/jest": "^26.0.24",
+    "@types/joi": "^17.2.3",
+    "@types/node": "^16.3.2",
+    "cross-env": "^7.0.3",
+    "jest": "^27.0.6",
+    "nodemon": "^2.0.12",
+    "ts-jest": "^27.0.3",
+    "ts-node": "^10.1.0",
+    "typescript": "^4.3.5"
+  },
+  "dependencies": {
+    "dotenv": "^10.0.0",
+    "joi": "^17.4.0",
+    "promise-mysql": "^5.0.3"
+  },
+  "files": [
+    "dist/**/*"
+  ]
+}
