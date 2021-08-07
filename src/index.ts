@@ -16,7 +16,9 @@ import Build from './core/build'
     }
 
     //let data = await user.add(insert)
-    let data = await user.get(2)
+    //let data = await user.get(2)
+    let data = await user.update(insert)
+    //let data = await user.remove(1)
 
     console.log(data)
 
