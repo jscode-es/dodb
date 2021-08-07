@@ -114,14 +114,19 @@ export default class Model {
 
         let result:any = []
 
-        if(primaryKey.includes(pk))
+        if(!primaryKey.includes(pk))
         {
-            let sql = `SELECT * FROM \`${this.getName()}\` WHERE \`${pk}\` = :id`
-
-            let db = new Database()
-
-            result = await db.query(sql,{id})
+            if(primaryKey.length!=0)
+                pk = primaryKey[0]
+            else
+                return false
         }
+        
+        let sql = `SELECT * FROM \`${this.getName()}\` WHERE \`${pk}\` = :id`
+
+        let db = new Database()
+
+        result = await db.query(sql,{id})
 
         return result
     }
