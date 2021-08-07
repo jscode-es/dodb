@@ -41,13 +41,20 @@ export default class Model {
 
         let db = new Database()
 
+        let primayKey = []
+
         let sql = `SELECT COLUMN_NAME
         FROM INFORMATION_SCHEMA.COLUMNS
         WHERE TABLE_SCHEMA = '${this.getSchema()}' AND TABLE_NAME = '${this.getName()}' AND COLUMN_KEY = 'PRI'`
 
         let data = await db.query(sql)
 
-        return data[0].COLUMN_NAME
+        for (const item of data) {
+            
+            primayKey.push(item.COLUMN_NAME)
+        }
+
+        return primayKey
     }
 
     // Data, pude un objecto o un array de objectos
@@ -90,20 +97,31 @@ export default class Model {
         return {result, errors}
     }
 
-    async get(id: any) {
+    async get({}:any) {
 
         let db = new Database()
 
-        let primaryKey = await this.getPrimaryKey()
-
         let sql = `SELECT * FROM \`${this.getName()}\``
 
-        if (id && typeof id !== 'object') {
+        let result = await db.query(sql)
 
-            sql += ` WHERE ${primaryKey} = :id`
+        return result
+    }
+
+    async getById(id:number|string, pk='id')
+    {
+        let primaryKey = await this.getPrimaryKey()
+
+        let result:any = []
+
+        if(primaryKey.includes(pk))
+        {
+            let sql = `SELECT * FROM \`${this.getName()}\` WHERE \`${pk}\` = :id`
+
+            let db = new Database()
+
+            result = await db.query(sql,{id})
         }
-
-        let result = await db.query(sql, { id })
 
         return result
     }
@@ -114,13 +132,22 @@ export default class Model {
 
         let primaryKey = await this.getPrimaryKey()
 
-        let isPrimaryExist = (primaryKey in data)
+        let isPrimaryExist = false
+
+        let where = ''
+
+        primaryKey.forEach(function(key) { 
+
+            where += 'WHERE '
+
+            if(key in data)
+            {
+                where += `\`${key}\` = '${data[key]}'`
+                delete data[key]
+            }
+        });
 
         if(!isPrimaryExist) return false
-
-        let id = data[primaryKey]
-
-        delete data[primaryKey]
 
         let { attrs } = this
 
@@ -141,9 +168,7 @@ export default class Model {
 
             set = set.slice(0, -1) 
 
-            let sql = `UPDATE \`${this.getName()}\` SET ${set} WHERE \`${primaryKey}\`='${id}'`
-
-            console.log(sql)
+            let sql = `UPDATE \`${this.getName()}\` SET ${set} ${where}`
 
             let result = await db.query(sql, value)
 
