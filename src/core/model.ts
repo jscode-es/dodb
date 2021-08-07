@@ -1,6 +1,3 @@
-import fs from 'fs'
-import path from 'path'
-
 import Database from './database'
 import Validate from './validate'
 
@@ -41,6 +38,7 @@ export default class Model {
     }
 
     async getPrimaryKey() {
+
         let db = new Database()
 
         let sql = `SELECT COLUMN_NAME
@@ -50,33 +48,46 @@ export default class Model {
         let data = await db.query(sql)
 
         return data[0].COLUMN_NAME
-
     }
 
-
-    async add(data: any) {
+    // Data, pude un objecto o un array de objectos
+    async add(data: any) { 
 
         if (typeof data !== 'object') return false
 
         let { attrs } = this
 
-        let { error, value } = Validate.check(attrs, data)
+        let result:any = []
+        let errors :any= []
 
-        if (!error) {
-            let db = new Database()
-
-            let keys = Object.keys(value)
-            //let values = Object.values(value)
-            //let sql = `INSERT INTO \`${this.getName()}\` ( \`${keys.join("`,`")}\` ) VALUES ( \`${values.join("`,`")}\` )`
-
-            let sql = `INSERT INTO \`${this.getName()}\` ( \`${keys.join("`,`")}\` ) VALUES ( :${keys.join(",:")} )`
-
-            let result = await db.query(sql, value)
-
-            return result
+        if(!Array.isArray(data))
+        {
+            data = [data]
         }
 
-        return false
+        for (const item of data) {
+            
+            let { error, value } = Validate.check(attrs, item)
+
+            if (!error) {
+    
+                let db = new Database()
+    
+                let keys = Object.keys(value)
+
+                let sql = `INSERT INTO \`${this.getName()}\` ( \`${keys.join("`,`")}\` ) VALUES ( :${keys.join(",:")} )`
+    
+                let success = await db.query(sql, value)
+    
+                result.push(success)
+            } else 
+                errors.push(error)
+
+        }
+
+        if(errors.length===0) errors = false
+
+        return {result, errors}
     }
 
     async get(id: any) {
@@ -97,11 +108,70 @@ export default class Model {
         return result
     }
 
-    async update() {
+    async update(data: any) {
 
+        if (typeof data !== 'object') return false
+
+        let primaryKey = await this.getPrimaryKey()
+
+        let isPrimaryExist = (primaryKey in data)
+
+        if(!isPrimaryExist) return false
+
+        let id = data[primaryKey]
+
+        delete data[primaryKey]
+
+        let { attrs } = this
+
+        let { error, value } = Validate.check(attrs, data)
+
+        if (!error) {
+
+            let db = new Database()
+
+            let keys = Object.keys(value)
+
+            let set = ''
+
+            for (const key in value) 
+            {
+                set+=`\`${key}\` = '${value[key]}',`
+            }
+
+            set = set.slice(0, -1) 
+
+            let sql = `UPDATE \`${this.getName()}\` SET ${set} WHERE \`${primaryKey}\`='${id}'`
+
+            console.log(sql)
+
+            let result = await db.query(sql, value)
+
+            return result
+        }
+
+        return false
     }
 
-    async remove() {
+    async remove(id: any) {
+
+        
+        if (id && typeof id !== 'object') {
+
+            let db = new Database()
+    
+            let primaryKey = await this.getPrimaryKey()
+    
+            let sql = `
+            DELETE FROM \`${this.getName()}\` 
+            WHERE ${primaryKey} = :id`
+
+            let result = await db.query(sql, { id })
+    
+            return result
+        }
+
+        return false
 
     }
 
