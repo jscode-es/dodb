@@ -61,7 +61,3 @@ dodb().then(async({user})=>
 |                |Método                          |Ejemplo                         |
 |----------------|-------------------------------|-----------------------------|
 |Añadir sino existe|`[tabla].addIsNoTExist(<object>)`            |`user.addIsNoTExist({name:'Sergio'})`           |
-|Recuperar datos          |`[tabla].get(<object>)`        |`user.get({limit:5})`          |
-|Recuperar datos por ID          | `[tabla].getByID(id <int/string>, pk <string> = 'id')`| `user.getByID(2,'user_id')`|
-|Actualizar          | `[tabla].update(<object>)`| `user.update({user_id:1, name:'Jessica'})`|
-|Eliminar          | `[tabla].remove(id <int/string/object>, pk <string> = 'id')`| `user.remove(2,'user_id')`|
