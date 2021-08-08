@@ -7,11 +7,14 @@ export default class Model {
     private schema: string
     private attrs: any
     private keys: Array<String> = []
+    private primaryKeys: Array<String> = []
 
     constructor(schema: string, name: string) {
         this.name = name
         this.schema = schema
     }
+
+    // MÉTODOS PÚBLICOS
 
     getName() {
         return this.name
@@ -23,24 +26,31 @@ export default class Model {
 
     async getAttrs() {
 
-        let db = new Database()
+        if (this.keys.length === 0) {
 
-        let sql = `SELECT *
-        FROM INFORMATION_SCHEMA.COLUMNS
-        WHERE TABLE_SCHEMA = '${this.getSchema()}' AND TABLE_NAME = '${this.getName()}'`
+            let db = new Database()
 
-        let data = await db.query(sql)
+            let sql = `SELECT *
+            FROM INFORMATION_SCHEMA.COLUMNS
+            WHERE TABLE_SCHEMA = '${this.getSchema()}' AND TABLE_NAME = '${this.getName()}'`
 
-        let keys: Array<String> = []
+            let data = await db.query(sql)
 
-        for (const item of data) {
+            let keys: Array<String> = []
 
-            keys.push(item.COLUMN_NAME)
+            for (const item of data) {
+
+                keys.push(item.COLUMN_NAME)
+            }
+
+            this.keys = keys
+
+            return data
         }
 
-        this.keys = keys
+        await this.getPrimaryKey()
 
-        return data
+        return this.keys
     }
 
     async setAttrs(attrs: any) {
@@ -49,25 +59,33 @@ export default class Model {
 
     async getPrimaryKey() {
 
-        let db = new Database()
+        if (this.primaryKeys.length === 0) {
 
-        let primayKey = []
+            let db = new Database()
 
-        let sql = `SELECT COLUMN_NAME
-        FROM INFORMATION_SCHEMA.COLUMNS
-        WHERE TABLE_SCHEMA = '${this.getSchema()}' AND TABLE_NAME = '${this.getName()}' AND COLUMN_KEY = 'PRI'`
+            let primayKey = []
 
-        let data = await db.query(sql)
+            let sql = `SELECT COLUMN_NAME
+            FROM INFORMATION_SCHEMA.COLUMNS
+            WHERE TABLE_SCHEMA = '${this.getSchema()}' AND TABLE_NAME = '${this.getName()}' AND COLUMN_KEY = 'PRI'`
 
-        for (const item of data) {
+            let data = await db.query(sql)
 
-            primayKey.push(item.COLUMN_NAME)
+            for (const item of data) {
+
+                primayKey.push(item.COLUMN_NAME)
+            }
+
+            this.primaryKeys = primayKey
+
+            return primayKey
+
         }
 
-        return primayKey
+        return this.primaryKeys
+
     }
 
-    // Data, pude un objecto o un array de objectos
     async add(data: any) {
 
         if (typeof data !== 'object') return false
@@ -105,12 +123,6 @@ export default class Model {
 
         return { result, errors }
     }
-
-    /*
-    
-    where : {key=value}
-    
-    */
 
     async get(params: any) {
 
@@ -180,8 +192,10 @@ export default class Model {
         let where: any = {}
 
         if (!primaryKey.includes(pk)) {
-            if (primaryKey.length != 0)
+            if (primaryKey.length != 0) {
+                console.warn(`[ WARN ] The Primary Key was not found '${pk}', and 'id`)
                 pk = primaryKey[0]
+            }
             else
                 return false
         }
@@ -193,27 +207,40 @@ export default class Model {
         return result
     }
 
-    async update(data: any) {
+    async update(find: any, data: any, pk = 'id') {
 
         if (typeof data !== 'object') return false
 
-        let primaryKey = await this.getPrimaryKey()
-
-        let isPrimaryExist = false
-
         let where = ''
 
-        primaryKey.forEach(function (key) {
+        if (typeof find === 'number' || typeof find === 'string') {
 
-            where += 'WHERE '
+            let primaryKey = await this.getPrimaryKey()
 
-            if (key in data) {
-                where += `\`${key}\` = '${data[key]}'`
-                delete data[key]
+            if (!primaryKey.includes(pk)) {
+                if (primaryKey.length != 0) {
+                    console.warn(`[ WARN ] The Primary Key was not found '${pk}', and 'id`)
+                    pk = primaryKey[0]
+                }
             }
-        })
 
-        if (!isPrimaryExist) return false
+            where += `WHERE ${pk} = :find`
+
+        } else if (typeof find === 'object' && !Array.isArray(find)) {
+
+            where += `WHERE `
+
+            for (const key in find) {
+
+                where += `\`${key}\` = '${find[key]}' AND`
+            }
+
+            let regex = /AND$/gm;
+
+            if (regex.test(where)) {
+                where = where.slice(0, -4)
+            }
+        }
 
         let { attrs } = this
 
@@ -274,6 +301,7 @@ export default class Model {
         return model
     }
 
+    // MÉTODOS PRIVADOS
 
     private formatIn(_in: any, delWhere: boolean = false) {
 
