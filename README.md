@@ -52,3 +52,16 @@ dodb().then(async({user})=>
 |Recuperar datos por ID          | `[tabla].getByID(id <int/string>, pk <string> = 'id')`| `user.getByID(2,'user_id')`|
 |Actualizar          | `[tabla].update(<object>)`| `user.update({user_id:1, name:'Jessica'})`|
 |Eliminar          | `[tabla].remove(id <int/string/object>, pk <string> = 'id')`| `user.remove(2,'user_id')`|
+|Recuperar atriburtos de la tabla          | `[tabla].getAttrs()`| `user.getAttrs()`|
+|Recuperar nombre de la tabla          | `[tabla].getAttrs()`| `user.getAttrs()`|
+|Recuperar nombre del schema de la tabla          | `[tabla].getSchema()`| `user.getSchema()`|
+|Recuperar claves primarias | `[tabla].getPrimaryKey()`| `user.getPrimaryKey()`|
+
+## Métodos futuros
+|                |Método                          |Ejemplo                         |
+|----------------|-------------------------------|-----------------------------|
+|Añadir sino existe|`[tabla].addIsNoTExist(<object>)`            |`user.addIsNoTExist({name:'Sergio'})`           |
+|Recuperar datos          |`[tabla].get(<object>)`        |`user.get({limit:5})`          |
+|Recuperar datos por ID          | `[tabla].getByID(id <int/string>, pk <string> = 'id')`| `user.getByID(2,'user_id')`|
+|Actualizar          | `[tabla].update(<object>)`| `user.update({user_id:1, name:'Jessica'})`|
+|Eliminar          | `[tabla].remove(id <int/string/object>, pk <string> = 'id')`| `user.remove(2,'user_id')`|
