@@ -1,6 +1,6 @@
 {
   "name": "dodb",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Dynamic Object DataBase",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
