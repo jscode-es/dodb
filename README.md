@@ -18,7 +18,7 @@ import dodb from 'dodb'
     let params =
     {
         name:'Sergio',
-        surname:'González'
+        surname:'González',
         email:'sgonzalez@jscode.es'
     }
     
@@ -34,7 +34,7 @@ dodb().then(async({user})=>
     let params =
     {
         name:'Sergio',
-        surname:'González'
+        surname:'González',
         email:'sgonzalez@jscode.es'
     }
     
