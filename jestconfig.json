@@ -1,14 +1,10 @@
 {
-    "transform": {
-        "^.+\\.(t|j)sx?$": "ts-jest"
-    },
-    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
-    "moduleFileExtensions": [
-        "ts",
-        "tsx",
-        "js",
-        "jsx",
-        "json",
-        "node"
-    ]
+    "preset": "ts-jest",
+    "coverageDirectory": "./coverage",
+    "testMatch": [
+        "**/?(*.)+(spec).ts",
+        "**/?(*.)+(test).ts"
+    ],
+    "resetMocks": true,
+    "clearMocks": true
 }
