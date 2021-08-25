@@ -95,6 +95,7 @@ export default class Model {
         let result: any = []
         let errors: any = []
 
+
         if (!Array.isArray(data)) {
             data = [data]
         }
@@ -114,8 +115,8 @@ export default class Model {
                 let success = await db.query(sql, value)
 
                 result.push(success)
-            } else
-                errors.push(error)
+
+            } else errors.push(error)
 
         }
 
@@ -125,6 +126,11 @@ export default class Model {
     }
 
     async get(params: any) {
+
+        // TODO: validates params to schema
+
+        let result: any = []
+        let errors: any = []
 
         let db = new Database()
 
@@ -178,16 +184,16 @@ export default class Model {
             }
         }
 
-        let result = await db.query(sql)
+        result = await db.query(sql)
 
-        return result
+        if (errors.length === 0) errors = false
+
+        return { result, errors }
     }
 
     async getById(id: number | string, pk = 'id') {
 
         let primaryKey = await this.getPrimaryKey()
-
-        let result: any = []
 
         let where: any = {}
 
@@ -197,19 +203,24 @@ export default class Model {
                 pk = primaryKey[0]
             }
             else
-                return false
+                return { result: [], error: `This primary key, '${pk}' is not exist` }
         }
 
         where[pk] = id
 
-        result = await this.get({ where })
+        console.log('where', where)
 
-        return result
+        let { result, errors } = await this.get({ where })
+
+        return { result, errors }
     }
 
     async update(find: any, data: any, pk = 'id') {
 
-        if (typeof data !== 'object') return false
+        let result: any = []
+        let errors: any = []
+
+        if (typeof data !== 'object') return { result, errors: 'This data is not to Object' }
 
         let where = ''
 
@@ -260,16 +271,21 @@ export default class Model {
 
             let sql = `UPDATE \`${this.getName()}\` SET ${set} ${where}`
 
-            let result = await db.query(sql, value)
+            result = await db.query(sql, value)
 
-            return result
         }
 
-        return false
+        if (errors.length === 0) errors = false
+
+        return { result, errors }
     }
 
-    async remove(id: any) {
+    async remove(id: any, pk: string = 'id') {
 
+        let result: any = []
+        let errors: any = []
+
+        // TODO: validates params to schema
 
         if (id && typeof id !== 'object') {
 
@@ -277,16 +293,31 @@ export default class Model {
 
             let primaryKey = await this.getPrimaryKey()
 
+            if (!primaryKey.includes(pk)) {
+                if (primaryKey.length != 0) {
+                    console.warn(`[ WARN ] The Primary Key was not found '${pk}', and 'id`)
+                    pk = primaryKey[0]
+                }
+                else
+                    return { result: [], error: `This primary key, '${pk}' is not exist` }
+            }
+
             let sql = `
             DELETE FROM \`${this.getName()}\` 
-            WHERE ${primaryKey} = :id`
+            WHERE ${pk} = :id`
 
-            let result = await db.query(sql, { id })
+            console.log({ sql })
 
-            return result
+            result = await db.query(sql, { id })
+
+        } else {
+
+            errors = 'Required id'
         }
 
-        return false
+        if (errors.length === 0) errors = false
+
+        return { result, errors }
 
     }
 

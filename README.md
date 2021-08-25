@@ -3,7 +3,7 @@ DODB es un ORM de Node.js basado en promesas para MySQL, sin necesidad de defini
 
 Dispone de un administrado de validación de atributos, tanto si esta definido en la base de datos como la tipologia del dato.
 
-# IMPORTATE!!! Está en desarrollo
+# VERSION BETA LISTA PARA USAR EN DESARROLLO
 
 ## Uso básico
 Para recuperar todos los objectos de la base de datos, la función de dodb se ejecuta como una promesa.
@@ -53,7 +53,7 @@ dodb().then(async({user})=>
 |Actualizar          | `[tabla].update(<object>)`| `user.update({user_id:1, name:'Jessica'})`|
 |Eliminar          | `[tabla].remove(id <int/string/object>, pk <string> = 'id')`| `user.remove(2,'user_id')`|
 |Recuperar atriburtos de la tabla          | `[tabla].getAttrs()`| `user.getAttrs()`|
-|Recuperar nombre de la tabla          | `[tabla].getAttrs()`| `user.getAttrs()`|
+|Recuperar nombre de la tabla          | `[tabla].getName()`| `user.getName()`|
 |Recuperar nombre del schema de la tabla          | `[tabla].getSchema()`| `user.getSchema()`|
 |Recuperar claves primarias | `[tabla].getPrimaryKey()`| `user.getPrimaryKey()`|
 

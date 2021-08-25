@@ -45,7 +45,7 @@ export default class Build {
             models[tables[i].TABLE_NAME] = await Model.generate(schema, tables[i].TABLE_NAME)
         }
 
-        //Build.cache[schema] = models
+        models.db = new Database()
 
         return models
 

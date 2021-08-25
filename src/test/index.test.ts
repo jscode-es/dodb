@@ -10,22 +10,22 @@ test.skip("Module dodb Object", async () => {
 test.skip("Get user by id", async () => {
 
     let { user } = await dodb()
-    let data = await user.getById(1)
+    let { result, errors } = await user.getById(11)
 
-    expect(typeof data).toBe('object')
+    expect(errors).toBe(false)
 });
 
 test.skip("Get user by other params", async () => {
 
     let { user } = await dodb()
 
-    let where = {
-        name: 'Sergio'
+    let like = {
+        name: '%Se%'
     }
 
-    let data = await user.get({ where })
+    let { result, errors } = await user.get({ like })
 
-    expect(typeof data).toBe('object')
+    expect(errors).toBe(false)
 });
 
 test.skip("Inserta datos", async () => {
@@ -37,12 +37,13 @@ test.skip("Inserta datos", async () => {
         surname: 'Amer',
         alias: 'jamer',
         email: 'jamer@jscode.es',
-        pass: '*****'
+        pass: '*****',
+        order: 'PA'
     }
 
-    let data = await user.add(params)
+    let { errors } = await user.add(params)
 
-    expect(typeof data).toBe('object')
+    expect(errors).toBe(false)
 });
 
 test.skip("Update datos by params", async () => {
@@ -51,18 +52,54 @@ test.skip("Update datos by params", async () => {
 
     let find =
     {
-        name: 'Maria'
+        name: 'Jessica'
     }
 
     let params = {
-        name: 'Jessica',
-        surname: 'Amer',
-        alias: 'jamer',
-        email: 'jamer@jscode.es',
+        name: 'Sergio',
+        surname: 'Gonzalez',
+        alias: 'sgonzalez',
+        email: 'sgonzalez@jscode.es',
         pass: '************'
     }
 
-    let data = await user.update(find, params)
+    let { result, errors } = await user.update(find, params)
 
-    expect(typeof data).toBe('object')
+    console.log(result)
+
+    expect(errors).toBe(false)
+});
+
+test.skip("Get primary keys", async () => {
+
+    let { user } = await dodb()
+
+    let data = await user.getPrimaryKey()
+
+    console.log(data)
+
+    expect(data).toBe(false)
+});
+
+
+test.skip("Get attribute", async () => {
+
+    let { user } = await dodb()
+
+    let data = await user.getAttrs()
+
+    console.log(data)
+
+    expect(Array.isArray(data)).toBe(true)
+});
+
+test.skip("Remove data", async () => {
+
+    let { user } = await dodb()
+
+    let { result, errors } = await user.remove(11)
+
+    console.log({ result, errors })
+
+    expect(errors).toBe(false)
 });
